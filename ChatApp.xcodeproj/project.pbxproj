@@ -14,6 +14,7 @@
 		142BD8A92080387E000C12CB /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 142BD8A82080387E000C12CB /* Message.swift */; };
 		1467BE49207EDD5C00ABD7FD /* NewMessageController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1467BE48207EDD5C00ABD7FD /* NewMessageController.swift */; };
 		1467BE4C207EE26200ABD7FD /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1467BE4B207EE26200ABD7FD /* User.swift */; };
+		146DC6A4209E4A0D004B536B /* ChatInputContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 146DC6A3209E4A0D004B536B /* ChatInputContainerView.swift */; };
 		14A4791C207E419A00A49A1E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14A4791B207E419A00A49A1E /* AppDelegate.swift */; };
 		14A4791E207E419A00A49A1E /* MessagesController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14A4791D207E419A00A49A1E /* MessagesController.swift */; };
 		14A47921207E419A00A49A1E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 14A4791F207E419A00A49A1E /* Main.storyboard */; };
@@ -34,6 +35,7 @@
 		142BD8A82080387E000C12CB /* Message.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
 		1467BE48207EDD5C00ABD7FD /* NewMessageController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewMessageController.swift; sourceTree = "<group>"; };
 		1467BE4B207EE26200ABD7FD /* User.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
+		146DC6A3209E4A0D004B536B /* ChatInputContainerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatInputContainerView.swift; sourceTree = "<group>"; };
 		14A47918207E419A00A49A1E /* ChatApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChatApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		14A4791B207E419A00A49A1E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		14A4791D207E419A00A49A1E /* MessagesController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagesController.swift; sourceTree = "<group>"; };
@@ -68,6 +70,7 @@
 			isa = PBXGroup;
 			children = (
 				1404A43E2080438D0068E031 /* UserCell.swift */,
+				146DC6A3209E4A0D004B536B /* ChatInputContainerView.swift */,
 				14D63CDA2081131B008768AD /* ChatMessageCell.swift */,
 			);
 			name = View;
@@ -303,6 +306,7 @@
 				142BD8A92080387E000C12CB /* Message.swift in Sources */,
 				142BD8A5207FB543000C12CB /* LoginControllers+Handlers.swift in Sources */,
 				14D63CDB2081131B008768AD /* ChatMessageCell.swift in Sources */,
+				146DC6A4209E4A0D004B536B /* ChatInputContainerView.swift in Sources */,
 				1404A43F2080438D0068E031 /* UserCell.swift in Sources */,
 				1467BE4C207EE26200ABD7FD /* User.swift in Sources */,
 			);
