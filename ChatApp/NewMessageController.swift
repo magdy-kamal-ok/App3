@@ -19,7 +19,7 @@ class NewMessageController: UITableViewController {
         tableView.register(UserCell.self, forCellReuseIdentifier: cellId)
         fetchUser()
     }
-    func handleCancel(){
+    @objc func handleCancel(){
         dismiss(animated: true, completion: nil)
     }
     
@@ -29,7 +29,7 @@ class NewMessageController: UITableViewController {
             {
                 let user = UserPerson(dictionary: dictionary)
                 user.id = snapshot.key
-                user.setValuesForKeys(dictionary)
+                //user.setValuesForKeys(dictionary)
                 self.users.append(user)
                 
                 // here we must use dispatch async for reload table from main thread

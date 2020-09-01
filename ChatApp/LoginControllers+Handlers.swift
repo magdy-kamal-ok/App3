@@ -12,7 +12,7 @@ extension LoginController:UIImagePickerControllerDelegate, UINavigationControlle
 
     
 
-    func handleProfileImageView()
+    @objc func handleProfileImageView()
     {
         let picker = UIImagePickerController()
         picker.delegate = self
@@ -56,7 +56,7 @@ extension LoginController:UIImagePickerControllerDelegate, UINavigationControlle
             }
             //self.messagesController?.fetchUserAndSetupNavBarTitle()
             let user = UserPerson(dictionary: values)
-            user.setValuesForKeys(values)
+            //user.setValuesForKeys(values)
             self.messagesController?.setupNavBarWithUser(user: user)
             
             self.dismiss(animated: true, completion: nil)
@@ -84,7 +84,7 @@ extension LoginController:UIImagePickerControllerDelegate, UINavigationControlle
             let storageRef = Storage.storage().reference().child("profile_images").child("\(imageName).jpg")
 
             
-            if let profileImage = self.profileImageView.image, let uploadData = UIImageJPEGRepresentation(profileImage, 0.1)
+            if let profileImage = self.profileImageView.image, let uploadData = profileImage.jpegData(compressionQuality: 0.1)
             // this png for full resolution of an image but jpeg has ratio
             //if let uploadData = UIImagePNGRepresentation(self.profileImageView.image!)
             {

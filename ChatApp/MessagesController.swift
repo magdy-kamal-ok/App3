@@ -132,7 +132,7 @@ class MessagesController: UITableViewController {
         self.timer?.invalidate()
         self.timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.handleReloadTable), userInfo: nil, repeats: false)
     }
-    func handleReloadTable(){
+    @objc func handleReloadTable(){
         self.messages = Array(self.messagesDictionary.values)
         self.messages.sort(by: { (message1, message2) -> Bool in
             
@@ -149,7 +149,7 @@ class MessagesController: UITableViewController {
             {
 //                self.navigationItem.title = dictionary["name"] as? String
                 let user = UserPerson(dictionary: dictionary)
-                user.setValuesForKeys(dictionary)
+                //user.setValuesForKeys(dictionary)
         
                 self.setupNavBarWithUser(user: user)
                 
@@ -158,13 +158,13 @@ class MessagesController: UITableViewController {
         
         
     }
-    func handleNewMessage(){
+    @objc func handleNewMessage(){
         let newMessageController = NewMessageController()
         newMessageController.messagesController = self
         self.present(UINavigationController(rootViewController:newMessageController), animated: true, completion: nil)
     }
     
-    func handleLogout(){
+    @objc func handleLogout(){
         do
         {
             try Auth.auth().signOut()
@@ -270,7 +270,7 @@ class MessagesController: UITableViewController {
             
             let user = UserPerson(dictionary: dictionary)
             user.id = chatPartnerId
-            user.setValuesForKeys(dictionary)
+            //user.setValuesForKeys(dictionary)
             self.showChatControllerForUser(user: user)
             
         }, withCancel: nil)
@@ -282,8 +282,8 @@ class MessagesController: UITableViewController {
     override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         return true
     }
-    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
-        
+    
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         guard let uid = Auth.auth().currentUser?.uid else {return}
         
         let message = self.messages[indexPath.row]
@@ -297,11 +297,11 @@ class MessagesController: UITableViewController {
                 }
                 self.messagesDictionary.removeValue(forKey: chatPartnerId)
                 self.attemptReloadOfTable()
-//                self.messages.remove(at: indexPath.row)
-//                self.tableView.deleteRows(at: [indexPath], with: .automatic)
+                //                self.messages.remove(at: indexPath.row)
+                //                self.tableView.deleteRows(at: [indexPath], with: .automatic)
             })
         }
     }
-
+    
 }
 

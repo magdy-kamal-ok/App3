@@ -89,7 +89,7 @@ class LoginController: UIViewController {
     var nameTextFieldHeightAnchor:NSLayoutConstraint?
     var emailTextFieldHeightAnchor:NSLayoutConstraint?
     var passwordTextFieldHeightAnchor:NSLayoutConstraint?
-    func handleLoginRegisterSegmentChange()
+    @objc func handleLoginRegisterSegmentChange()
     {
         let title = loginRegisterSegmentedControl.titleForSegment(at: loginRegisterSegmentedControl.selectedSegmentIndex)
         loginRegisterButton.setTitle(title, for: .normal)
@@ -115,7 +115,7 @@ class LoginController: UIViewController {
     
 
     
-    func handleLoginRegister()
+    @objc func handleLoginRegister()
     {
         loginRegisterSegmentedControl.selectedSegmentIndex == 0 ? handleLogin() : handleRegister()
     }

@@ -40,7 +40,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         
     }()
     
-    func handleUploadTap(){
+    @objc func handleUploadTap(){
         let imagePickerController = UIImagePickerController()
         imagePickerController.delegate = self
         imagePickerController.mediaTypes = [kUTTypeImage as String, kUTTypeMovie as String]
@@ -52,7 +52,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         
         
-        if let videoUrl = info[UIImagePickerControllerMediaURL] as? URL
+        if let videoUrl = info[UIImagePickerController.InfoKey.mediaURL.rawValue] as? URL
         {
             self.handleVideoSelectedForInfo(url: videoUrl)
         }
@@ -148,7 +148,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
     {
         let imageName = NSUUID().uuidString
         let ref = Storage.storage().reference().child("message_image").child(imageName)
-        if let uploadData = UIImageJPEGRepresentation(image, 0.2)
+        if let uploadData = image.jpegData(compressionQuality: 0.2)
         {
         
             ref.putData(uploadData, metadata: nil, completion: { (metadata, error) in
@@ -201,14 +201,15 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
     func setupKeyboardObservers()
     {
         
-        NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardDidShow), name: .UIKeyboardDidShow, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardDidShow), name: UIResponder.keyboardDidShowNotification, object: nil)
+        
 //        NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardWillShow), name: .UIKeyboardWillShow, object: nil)
 //        
 //        NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardWillHide), name: .UIKeyboardWillHide, object: nil)
 //        
     }
     
-    func handleKeyboardDidShow(notification:NSNotification)
+    @objc func handleKeyboardDidShow(notification:NSNotification)
     {
         if messages.count > 0
         {
@@ -219,8 +220,8 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
     
     func handleKeyboardWillShow(notification:NSNotification)
     {
-        let keyboardFrame = (notification.userInfo?[UIKeyboardFrameEndUserInfoKey] as AnyObject).cgRectValue
-        let keyboardDuration = (notification.userInfo?[UIKeyboardAnimationDurationUserInfoKey] as AnyObject).doubleValue
+        let keyboardFrame = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as AnyObject).cgRectValue
+        let keyboardDuration = (notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as AnyObject).doubleValue
         // move the input area to top of keyboard height
         containerViewBottomAnchor?.constant = -(keyboardFrame?.height)!
         UIView.animate(withDuration: keyboardDuration!) {
@@ -232,7 +233,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
     {
         
         
-        let keyboardDuration = (notification.userInfo?[UIKeyboardAnimationDurationUserInfoKey] as AnyObject).doubleValue
+        let keyboardDuration = (notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as AnyObject).doubleValue
         // move the input area to top of keyboard height
         containerViewBottomAnchor?.constant = 0
         UIView.animate(withDuration: keyboardDuration!) {
@@ -285,7 +286,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
 //        separatorLineView.rightAnchor.constraint(equalTo: containerView.rightAnchor).isActive = true
 //    }
     
-    func handleSend()
+    @objc func handleSend()
     {
         let values = ["text":self.inputContainerView.inputTextField.text] as [String : AnyObject]
         self.sendMessageWithProperties(properties: values)
@@ -352,7 +353,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
                 
                 let message = Message(dictionary: dictionary)
                 //potential of crashing if keys don't match
-                message.setValuesForKeys(dictionary)
+                //message.setValuesForKeys(dictionary)
                 
                 
                 // this check for filtering related data to only this user
@@ -470,7 +471,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
     {
         let size = CGSize(width: 200, height: 1000)
         let options = NSStringDrawingOptions.usesFontLeading.union(.usesLineFragmentOrigin)
-        return NSString(string: text).boundingRect(with: size, options: options, attributes: [NSFontAttributeName:UIFont.systemFont(ofSize: 16)], context: nil)
+        return NSString(string: text).boundingRect(with: size, options: options, attributes: [NSAttributedString.Key.font:UIFont.systemFont(ofSize: 16)], context: nil)
     }
 
     // here is the custom zooming logic 
@@ -505,7 +506,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         }
     }
     
-    func handleZoomOutTap(tapGesture:UITapGestureRecognizer)
+    @objc func handleZoomOutTap(tapGesture:UITapGestureRecognizer)
     {
         if let zoomOutImageView = tapGesture.view as? UIImageView{
             zoomOutImageView.layer.cornerRadius = 16

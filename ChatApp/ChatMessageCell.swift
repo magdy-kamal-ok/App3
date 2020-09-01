@@ -22,7 +22,7 @@ class ChatMessageCell: UICollectionViewCell {
     var player:AVPlayer?
     
     let activityIndicator:UIActivityIndicatorView = {
-        let aiv = UIActivityIndicatorView(activityIndicatorStyle: .whiteLarge)
+        let aiv = UIActivityIndicatorView(style: .whiteLarge)
         aiv.translatesAutoresizingMaskIntoConstraints = false
         return aiv
     }()
@@ -72,7 +72,7 @@ class ChatMessageCell: UICollectionViewCell {
         return imageView
     }()
     
-    func handlePlayButton()
+    @objc func handlePlayButton()
     {
         if let messageUrlString = message?.videoUrl, let url = URL(string: messageUrlString)
         {
@@ -94,7 +94,7 @@ class ChatMessageCell: UICollectionViewCell {
         activityIndicator.stopAnimating()
     }
     
-    func handleZoomTap(tapGesture:UITapGestureRecognizer)
+    @objc func handleZoomTap(tapGesture:UITapGestureRecognizer)
     {
         // Pro Tip do not perform custom logic inside view class
         
