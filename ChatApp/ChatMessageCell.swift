@@ -56,16 +56,7 @@ class ChatMessageCell: UICollectionViewCell {
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
-    
-    let profileImageView:CustomImageView = {
-        let imageView = CustomImageView()
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.layer.cornerRadius = 16
-        imageView.layer.masksToBounds = true
-        imageView.contentMode = .scaleAspectFill
-        return imageView
-    }()
-    
+        
     lazy var messageImageView:CustomImageView = {
         let imageView = CustomImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
@@ -93,12 +84,6 @@ class ChatMessageCell: UICollectionViewCell {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        //guard message?.messageType != "image" else { return }
-        
-        if message?.messageType == "image" {
-            bubbleView.layer.cornerRadius = 5
-            return
-        }
         if isSender {
             bubbleView.roundCorners(corners: [.topLeft, .bottomLeft], radius: bubbleView.bounds.height/2)
         } else {
@@ -148,11 +133,9 @@ class ChatMessageCell: UICollectionViewCell {
         self.addGestureRecognizer(tap)
         addSubview(bubbleView)
         addSubview(textView)
-        addSubview(profileImageView)
         bubbleView.addSubview(messageImageView)
         setupBubbleView()
         setupTextView()
-        setupProfileImageView()
         setupMessageImageView()
     }
     
@@ -169,12 +152,10 @@ class ChatMessageCell: UICollectionViewCell {
     }
     
     func setupBubbleView() {
-        
-        
         bubbleViewTrailingAnchor = bubbleView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant:-8)
         bubbleViewTrailingAnchor?.isActive = true
         
-        bubbleViewLeadingAnchor = bubbleView.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant:8)
+        bubbleViewLeadingAnchor = bubbleView.leadingAnchor.constraint(equalTo: leadingAnchor, constant:8)
         bubbleViewLeadingAnchor?.isActive = false
         
         bubbleView.topAnchor.constraint(equalTo: self.topAnchor).isActive = true
@@ -182,14 +163,7 @@ class ChatMessageCell: UICollectionViewCell {
         bubbleWidthAnchor = bubbleView.widthAnchor.constraint(equalToConstant: 200)
         bubbleWidthAnchor?.isActive = true
     }
-    
-    func setupProfileImageView(){
-        profileImageView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant:8).isActive = true
-        profileImageView.bottomAnchor.constraint(equalTo: self.bottomAnchor).isActive = true
-        profileImageView.heightAnchor.constraint(equalToConstant: 32).isActive = true
-        profileImageView.widthAnchor.constraint(equalToConstant: 32).isActive = true
-    }
-    
+        
     func setupMessageImageView(){
         messageImageView.leadingAnchor.constraint(equalTo: self.bubbleView.leadingAnchor, constant:8).isActive = true
         messageImageView.topAnchor.constraint(equalTo: self.bubbleView.topAnchor).isActive = true

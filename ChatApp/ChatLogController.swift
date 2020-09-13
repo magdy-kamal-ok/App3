@@ -364,10 +364,6 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
     private func setupCell(cell:ChatMessageCell, message:Message)
     {
         
-        if let profileImageUrl = self.user?.imageUrl
-        {
-            cell.profileImageView.loadImageUsingUrlString(urlString: profileImageUrl)
-        }
         if message.senderId == senderId
         {
             // blue message
@@ -376,14 +372,12 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
             cell.textView.textColor = .white
             cell.bubbleViewLeadingAnchor?.isActive = false
             cell.bubbleViewTrailingAnchor?.isActive = true
-            cell.profileImageView.isHidden = true
         }
         else
         {
             cell.isSender = false
             cell.bubbleView.backgroundColor = ChatMessageCell.grayColor
             cell.textView.textColor = .black
-            cell.profileImageView.isHidden = false 
             cell.bubbleViewTrailingAnchor?.isActive = false
             cell.bubbleViewLeadingAnchor?.isActive = true
         }
