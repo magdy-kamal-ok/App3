@@ -99,7 +99,7 @@ class ChatMessageCell: UICollectionViewCell {
         // Pro Tip do not perform custom logic inside view class
         
         
-        if  message?.message != nil
+        if  message?.message == nil
         {
             return
         }

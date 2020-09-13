@@ -9,9 +9,9 @@
 import UIKit
 import Firebase
 extension LoginController:UIImagePickerControllerDelegate, UINavigationControllerDelegate{
-
     
-
+    
+    
     @objc func handleProfileImageView()
     {
         let picker = UIImagePickerController()
@@ -48,7 +48,7 @@ extension LoginController:UIImagePickerControllerDelegate, UINavigationControlle
     private func  registerUserIntoDataBaseWithUID(uid:String,values:[String:AnyObject]){
         let ref = Database.database().reference(fromURL: "https://chatapp-e2d8f.firebaseio.com/")
         let usersReference = ref.child("users").child(uid)
-
+        
         usersReference.updateChildValues(values, withCompletionBlock: { (err, ref) in
             if err != nil
             {
@@ -72,39 +72,29 @@ extension LoginController:UIImagePickerControllerDelegate, UINavigationControlle
             return
         }
         Auth.auth().createUser(withEmail: email, password: password){ (user:User?, error) in
-            
             if error != nil
             {
                 return
             }
             guard let uid = user?.uid else{return}
-            
             let imageName = NSUUID().uuidString
             //let storageRef = Storage.storage().reference().child("profile_images").child("\(imageName).png")
             let storageRef = Storage.storage().reference().child("profile_images").child("\(imageName).jpg")
-
-            
             if let profileImage = self.profileImageView.image, let uploadData = profileImage.jpegData(compressionQuality: 0.1)
-            // this png for full resolution of an image but jpeg has ratio
-            //if let uploadData = UIImagePNGRepresentation(self.profileImageView.image!)
+                // this png for full resolution of an image but jpeg has ratio
+                //if let uploadData = UIImagePNGRepresentation(self.profileImageView.image!)
             {
                 storageRef.putData(uploadData, metadata: nil, completion: { (metadata, error) in
-                    
                     if error != nil {
                         return
                     }
-                    
                     if let profileImageUrl = metadata?.downloadURL()?.absoluteString
                     {
-                       let values = ["name":name,"email":email,"profileImageUrl":profileImageUrl]
-                        
+                        let values = ["name":name,"chatId":UUID().uuidString,"imageUrl":profileImageUrl]
                         self.registerUserIntoDataBaseWithUID(uid: uid, values: values as [String : AnyObject])
-                        
                     }
                 })
             }
-            
-            
         }
     }
 }

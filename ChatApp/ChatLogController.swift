@@ -10,6 +10,7 @@ import UIKit
 import Firebase
 import AVFoundation
 import MobileCoreServices
+
 class ChatLogController: UICollectionViewController, UITextFieldDelegate, UICollectionViewDelegateFlowLayout,UIImagePickerControllerDelegate, UINavigationControllerDelegate {
 
     let cellId = "cellId"
@@ -49,22 +50,11 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         dismiss(animated: true, completion: nil)
     }
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
-        
-        
-        if let videoUrl = info[UIImagePickerController.InfoKey.mediaURL.rawValue] as? URL
-        {
-            self.handleVideoSelectedForInfo(url: videoUrl)
-        }
-        else
-        {
-            self.handleImageSelectedForInfo(info: info)
-        }
-        dismiss(animated: true, completion: nil)
-
-        
-    }
     
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        self.handleImageSelectedForInfo(info: info)
+        dismiss(animated: true, completion: nil)
+    }
     
     private func handleVideoSelectedForInfo(url:URL)
     {
@@ -121,16 +111,12 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         return nil
     }
     
-    private func handleImageSelectedForInfo(info:[String:Any])
+    private func handleImageSelectedForInfo(info:[UIImagePickerController.InfoKey: Any])
     {
         var selectedImageFromPicker:UIImage?
-        
-        if let editedImage = info["UIImagePickerControllerEditedImage"] as? UIImage
-        {
+        if let editedImage = info[UIImagePickerController.InfoKey.editedImage] as? UIImage {
             selectedImageFromPicker = editedImage
-        }
-        else if let originalImage = info["UIImagePickerControllerOriginalImage"] as? UIImage
-        {
+        } else if let originalImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
             selectedImageFromPicker = originalImage
         }
         
@@ -144,6 +130,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         }
         
     }
+    
     func uploadToFireBaseStorageUsingImage(image:UIImage, completion:@escaping (_ imageUrl:String)->())
     {
         let imageName = NSUUID().uuidString
@@ -231,8 +218,6 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
     
     func handleKeyboardWillHide(notification:NSNotification)
     {
-        
-        
         let keyboardDuration = (notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as AnyObject).doubleValue
         // move the input area to top of keyboard height
         containerViewBottomAnchor?.constant = 0
@@ -240,55 +225,11 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
             self.view.layoutIfNeeded()
         }
     }
-//    func setupInputComponents()
-//    {
-//        let containerView = UIView()
-//        containerView.translatesAutoresizingMaskIntoConstraints = false
-//        self.view.addSubview(containerView)
-//        
-//        containerView.leftAnchor.constraint(equalTo: self.view.leftAnchor).isActive = true
-//        containerView.rightAnchor.constraint(equalTo: self.view.rightAnchor).isActive = true
-//        containerViewBottomAnchor = containerView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor)
-//        containerViewBottomAnchor?.isActive = true
-//        containerView.heightAnchor.constraint(equalToConstant: 50).isActive = true
-//    
-//        let sendButton = UIButton(type: .system)
-//        sendButton.setTitle("Send", for: .normal)
-//        sendButton.translatesAutoresizingMaskIntoConstraints = false
-//        sendButton.addTarget(self, action: #selector(handleSend), for: .touchUpInside)
-//        
-//        containerView.addSubview(sendButton)
-//        
-//        sendButton.rightAnchor.constraint(equalTo: containerView.rightAnchor).isActive = true
-//        sendButton.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
-//        sendButton.heightAnchor.constraint(equalTo: containerView.heightAnchor).isActive = true
-//        sendButton.widthAnchor.constraint(equalToConstant: 80).isActive = true
-//    
-//
-//        
-//        containerView.addSubview(inputTextField)
-//        
-//        inputTextField.leftAnchor.constraint(equalTo: containerView.leftAnchor, constant:8).isActive = true
-//        inputTextField.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
-//        inputTextField.heightAnchor.constraint(equalTo: containerView.heightAnchor).isActive = true
-//        inputTextField.rightAnchor.constraint(equalTo: sendButton.leftAnchor).isActive = true
-//        
-//        
-//        let separatorLineView = UIView()
-//        separatorLineView.translatesAutoresizingMaskIntoConstraints = false
-//        separatorLineView.backgroundColor = UIColor.gray
-//        
-//        containerView.addSubview(separatorLineView)
-//        
-//        separatorLineView.leftAnchor.constraint(equalTo: containerView.leftAnchor, constant:8).isActive = true
-//        separatorLineView.bottomAnchor.constraint(equalTo: containerView.topAnchor).isActive = true
-//        separatorLineView.heightAnchor.constraint(equalToConstant: 1).isActive = true
-//        separatorLineView.rightAnchor.constraint(equalTo: containerView.rightAnchor).isActive = true
-//    }
     
     @objc func handleSend()
     {
-        let values = ["text":self.inputContainerView.inputTextField.text] as [String : AnyObject]
+        guard let text = self.inputContainerView.inputTextField.text else { return }
+        let values = ["message": text, "messageType": "text"] as [String : AnyObject]
         self.sendMessageWithProperties(properties: values)
     }
     
@@ -307,10 +248,6 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         let senderId = Auth.auth().currentUser?.uid
         let time:NSNumber = NSNumber(value: Date().timeIntervalSinceNow)
         var values:[String:AnyObject] = ["receiverId":receiverId, "senderId":senderId, "time":time] as [String : AnyObject]
-        //childRef.updateChildValues(values)
-        
-        // append properties dictionary onto values somehow??
-        // $0 is key $1 is value
         
         properties.forEach ({values[$0] = $1})
         
@@ -375,7 +312,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
 
      override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int
     {
-        return messages.count ?? 0
+        return messages.count
     }
 
      override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell
@@ -388,7 +325,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         self.setupCell(cell: cell!, message: message)
 
         // set bubble width for the cell
-        if let text = message.message
+        if message.messageType == "text", let text = message.message
         {
             cell?.textView.isHidden = false
             cell?.bubbleWidthAnchor?.constant = self.estimatedFrameForText(text: text).width + 32
