@@ -21,9 +21,9 @@ class MessagesController: UITableViewController {
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "new message", style: .plain, target: self, action: #selector(handleNewMessage))
         tableView.register(UserCell.self, forCellReuseIdentifier: cellId)
         
-        
+        tableView.separatorStyle = .none
         tableView.allowsSelectionDuringEditing = true
-        
+        tableView.backgroundColor = #colorLiteral(red: 0.999904573, green: 1, blue: 0.9998808503, alpha: 1)
         checkIfUserIsLoggedIn()
         //observeMessages()
    }
@@ -75,43 +75,13 @@ class MessagesController: UITableViewController {
                 let message = Message(dictionary: dictionary)
     
                 if let chatPartnerId = message.chatPartnerId() {
-                self.messagesDictionary[chatPartnerId] = message
-    
-    
+                    self.messagesDictionary[chatPartnerId] = message
                 }
-    
-        //this will crash because of background thread, so lets call this on dispatch_async main thread
-    
                 self.attemptReloadOfTable()
             }
     
         }, withCancel: nil)
     }
-//    func observeMessages()
-//    {
-//        let ref = Database.database().reference().child("messages")
-//
-//        ref.observe(.childAdded, with: { (snapshot) in
-//
-//            if let dictionary = snapshot.value as? [String:AnyObject]{
-//                let message = Message()
-//
-//                message.setValuesForKeys(dictionary)
-//               // self.messages.append(message)
-//                if let toId = message.toId{
-//                    self.messagesDictionary[toId] = message
-//                    self.messages = Array(self.messagesDictionary.values)
-//                    self.messages.sort(by: { (m1, m2) -> Bool in
-//                        return (m1.timeStamp?.intValue)! > (m2.timeStamp?.intValue)!
-//                    })
-//                }
-//                DispatchQueue.main.async {
-//                    self.tableView.reloadData()    
-//                }
-//                
-//            }
-//        }, withCancel: nil)
-//    }
     
     func checkIfUserIsLoggedIn()
     {
@@ -254,7 +224,7 @@ class MessagesController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 72
+        return 90
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
