@@ -12,7 +12,7 @@ import AVFoundation
 import MobileCoreServices
 
 class ChatLogController: UICollectionViewController, UITextFieldDelegate, UICollectionViewDelegateFlowLayout,UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-
+    
     let cellId = "cellId"
     var user:UserPerson?{
         didSet{
@@ -25,20 +25,12 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
     var blackBackgroundView:UIView?
     var startingImageView:UIImageView?
     var messages = [Message]()
-
+    private let fileChooser = FileChooser()
+    
     lazy var inputContainerView:ChatInputContainerView = {
-        
         let chatInputContainerView = ChatInputContainerView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 50))
-        
         chatInputContainerView.chatLogController = self
-        
         return chatInputContainerView
-        
-//        let containerView = UIView()
-//        containerView.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: 50)
-//        
-//        return containerView
-        
     }()
     
     @objc func handleUploadTap(){
@@ -47,6 +39,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         imagePickerController.mediaTypes = [kUTTypeImage as String, kUTTypeMovie as String]
         self.present(imagePickerController, animated: true, completion: nil)
     }
+    
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         dismiss(animated: true, completion: nil)
     }
@@ -71,7 +64,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
                 {
                     self.uploadToFireBaseStorageUsingImage(image: thumbnailImage, completion: { (imageUrl) in
                         let values = ["messageType": "video", "message": storageUrl] as [String : AnyObject]
-//                        let values = ["imageUrl":imageUrl, "videoUrl":storageUrl, "imageWidth":thumbnailImage.size.width , "imageHeight":thumbnailImage.size.height] as [String : AnyObject]
+                        //                        let values = ["imageUrl":imageUrl, "videoUrl":storageUrl, "imageWidth":thumbnailImage.size.width , "imageHeight":thumbnailImage.size.height] as [String : AnyObject]
                         self.sendMessageWithProperties(properties: values)
                         
                     })
@@ -92,21 +85,29 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         }
     }
     
-    private func thumbnailImageForVideoUrl(videoUrl:URL) -> UIImage?
-    {
+    @objc func handleUploadFileTap() {
+        fileChooser.viewController = self
+        fileChooser.selectionCompletion = { [weak self] (name: String, type: String, localURL: String, data: Data?) in
+            guard let self = self, let data = data else { return }
+            let ref = Storage.storage().reference().child("message_file").child(name)
+            ref.putData(data, metadata: nil, completion: { (metadata, error) in
+                guard error == nil else { return }
+                if let fileURL = metadata?.downloadURL()?.absoluteString {
+                    let values = ["messageType": "file", "message": fileURL] as [String: AnyObject]
+                    self.sendMessageWithProperties(properties: values)
+                }
+            })
+        }
+        fileChooser.chooseFile()
+    }
+    
+    private func thumbnailImageForVideoUrl(videoUrl: URL) -> UIImage? {
         let asset = AVAsset(url: videoUrl)
         let imageAssetGenerator = AVAssetImageGenerator(asset: asset)
-        
-        do
-        {
-            
-            let thumbnailCGImage = try imageAssetGenerator.copyCGImage(at: CMTime(value: 1, timescale: 60), actualTime: nil)
-            return UIImage(cgImage: thumbnailCGImage)
-            
-        }
-        catch let err
-        {
-            
+        do {
+            if let thumbnailCGImage = try? imageAssetGenerator.copyCGImage(at: CMTime(value: 1, timescale: 60), actualTime: nil) {
+                return UIImage(cgImage: thumbnailCGImage)
+            }
         }
         return nil
     }
@@ -125,7 +126,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
             //uploadToFireBaseStorageUsingImage(image: selectedImage)
             uploadToFireBaseStorageUsingImage(image: selectedImage, completion: { (imageUrl) in
                 self.sendMessageWithImageUrl(imageUrl: imageUrl, image:selectedImage)
-
+                
             })
         }
         
@@ -137,7 +138,6 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         let ref = Storage.storage().reference().child("message_image").child(imageName)
         if let uploadData = image.jpegData(compressionQuality: 0.2)
         {
-        
             ref.putData(uploadData, metadata: nil, completion: { (metadata, error) in
                 if error != nil
                 {
@@ -151,6 +151,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
             })
         }
     }
+    
     override var inputAccessoryView: UIView?{
         get{
             
@@ -174,7 +175,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         collectionView?.register(ChatMessageCell.self, forCellWithReuseIdentifier: cellId)
         collectionView?.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 8, right: 0)
         //collectionView?.scrollIndicatorInsets = UIEdgeInsets(top: 8, left: 0, bottom: 58, right: 0)
-
+        
     }
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         collectionView?.collectionViewLayout.invalidateLayout()
@@ -190,10 +191,10 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         
         NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardDidShow), name: UIResponder.keyboardDidShowNotification, object: nil)
         
-//        NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardWillShow), name: .UIKeyboardWillShow, object: nil)
-//        
-//        NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardWillHide), name: .UIKeyboardWillHide, object: nil)
-//        
+        //        NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardWillShow), name: .UIKeyboardWillShow, object: nil)
+        //
+        //        NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardWillHide), name: .UIKeyboardWillHide, object: nil)
+        //
     }
     
     @objc func handleKeyboardDidShow(notification:NSNotification)
@@ -216,8 +217,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         }
     }
     
-    func handleKeyboardWillHide(notification:NSNotification)
-    {
+    func handleKeyboardWillHide(notification:NSNotification) {
         let keyboardDuration = (notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as AnyObject).doubleValue
         // move the input area to top of keyboard height
         containerViewBottomAnchor?.constant = 0
@@ -226,20 +226,17 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         }
     }
     
-    @objc func handleSend()
-    {
+    @objc func handleSend() {
         guard let text = self.inputContainerView.inputTextField.text else { return }
         let values = ["message": text, "messageType": "text"] as [String : AnyObject]
         self.sendMessageWithProperties(properties: values)
     }
     
-    func sendMessageWithImageUrl(imageUrl:String, image:UIImage)
-    {
-//        let values = ["imageUrl":imageUrl, "imageWidth":image.size.width , "imageHeight":image.size.height] as [String : AnyObject]
+    func sendMessageWithImageUrl(imageUrl:String, image:UIImage) {
         let values = ["messageType":"image", "message": imageUrl] as [String : AnyObject]
         self.sendMessageWithProperties(properties: values)
     }
-
+    
     private func sendMessageWithProperties(properties:[String:AnyObject])
     {
         let ref = Database.database().reference().child("messages")
@@ -247,13 +244,10 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         let receiverId = user?.chatId
         let senderId = Auth.auth().currentUser?.uid
         let time:NSNumber = NSNumber(value: Date().timeIntervalSinceNow)
-        var values:[String:AnyObject] = ["receiverId":receiverId, "senderId":senderId, "time":time] as [String : AnyObject]
-        
+        var values:[String:AnyObject] = ["receiverId":receiverId, "senderId":senderId, "time":time] as [String: AnyObject]
         properties.forEach ({values[$0] = $1})
-        
         childRef.updateChildValues(values) { (error, ref) in
-            if error != nil
-            {
+            if error != nil {
                 return
             }
             self.inputContainerView.inputTextField.text = nil
@@ -265,8 +259,8 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
             
             receiptientUserMessageRef.updateChildValues([messageId:1])
         }
-
     }
+    
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         handleSend()
         return true
@@ -294,28 +288,28 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
                 
                 
                 // this check for filtering related data to only this user
-//                if message.chatPartnerId() == self.user?.id {
-                    self.messages.append(message)
-                    DispatchQueue.main.async(execute: {
-                        self.collectionView?.reloadData()
-                        // scroll to last element
-                        let indexPath = NSIndexPath(item: self.messages.count-1, section: 0)
-                        self.collectionView?.scrollToItem(at: indexPath as IndexPath, at: .bottom, animated: true)
-                    })
-//                }
+                //                if message.chatPartnerId() == self.user?.id {
+                self.messages.append(message)
+                DispatchQueue.main.async(execute: {
+                    self.collectionView?.reloadData()
+                    // scroll to last element
+                    let indexPath = NSIndexPath(item: self.messages.count-1, section: 0)
+                    self.collectionView?.scrollToItem(at: indexPath as IndexPath, at: .bottom, animated: true)
+                })
+                //                }
                 
             }, withCancel: nil)
             
         }, withCancel: nil)
     }
     
-
-     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int
+    
+    override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int
     {
         return messages.count
     }
-
-     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell
+    
+    override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell
     {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellId, for: indexPath) as? ChatMessageCell
         cell?.chatLogController = self
@@ -323,24 +317,23 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         cell?.textView.text = message.message
         cell?.message = message
         self.setupCell(cell: cell!, message: message)
-
+        
         // set bubble width for the cell
-        if message.messageType == "text", let text = message.message
-        {
+        if message.messageType == "text", let text = message.message {
             cell?.textView.isHidden = false
             cell?.bubbleWidthAnchor?.constant = self.estimatedFrameForText(text: text).width + 32
-        }
-        else if message.messageType == "image", message.message != nil
-        {
+        } else if message.messageType == "image", message.message != nil {
             cell?.textView.isHidden = true
             cell?.bubbleWidthAnchor?.constant = 200
+        } else if message.messageType == "file", message.message != nil {
+            cell?.textView.isHidden = false
+            cell?.textView.text = "Attached File"
+            cell?.bubbleWidthAnchor?.constant = self.estimatedFrameForText(text: "Attached File").width + 32
         }
-        if message.messageType == "video", message.message != nil
-        {
+        
+        if message.messageType == "video", message.message != nil {
             cell?.playButton.isHidden = false
-        }
-        else
-        {
+        } else {
             cell?.playButton.isHidden = true
         }
         return cell!
@@ -350,18 +343,18 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         
         var height:CGFloat = 80
         let message = messages[indexPath.item]
-        
-        if let text = message.message{
+        let text = message.messageType == "file" ? "Attached File" : message.message
+        if let text = text {
             height = self.estimatedFrameForText(text: text).height + 20
         }
-//        else if let imageWidth = message.imageWidth?.floatValue, let imageHeight = message.imageHeight?.floatValue
-//        {
-//
-//            // h1/w1 = h2/w2
-//            // h1 = h2 / (w1*w2)
-//            height = CGFloat(imageHeight / imageWidth * 200)
-//
-//        }
+        //        else if let imageWidth = message.imageWidth?.floatValue, let imageHeight = message.imageHeight?.floatValue
+        //        {
+        //
+        //            // h1/w1 = h2/w2
+        //            // h1 = h2 / (w1*w2)
+        //            height = CGFloat(imageHeight / imageWidth * 200)
+        //
+        //        }
         // this width because of the accessairy input
         
         let width = UIScreen.main.bounds.width
@@ -371,7 +364,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
     
     private func setupCell(cell:ChatMessageCell, message:Message)
     {
-
+        
         if let profileImageUrl = self.user?.imageUrl
         {
             cell.profileImageView.loadImageUsingUrlString(urlString: profileImageUrl)
@@ -411,7 +404,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         let options = NSStringDrawingOptions.usesFontLeading.union(.usesLineFragmentOrigin)
         return NSString(string: text).boundingRect(with: size, options: options, attributes: [NSAttributedString.Key.font:UIFont.systemFont(ofSize: 16)], context: nil)
     }
-
+    
     // here is the custom zooming logic 
     func performZoomInForStartingImageView(startingImageView:UIImageView)
     {
@@ -432,7 +425,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
             keyWindow.addSubview(zoomingImageView)
             
             UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseInOut, animations: { 
-            
+                
                 self.inputContainerView.alpha = 0
                 self.blackBackgroundView?.alpha = 1
                 let height = (self.startingFrame?.height)! / (self.startingFrame?.width)! * keyWindow.frame.width

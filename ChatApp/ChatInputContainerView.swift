@@ -15,9 +15,8 @@ class ChatInputContainerView : UIView,UITextFieldDelegate
         didSet{
             sendButton.addTarget(chatLogController, action: #selector(ChatLogController.handleSend), for: .touchUpInside)
             uploadImageView.addGestureRecognizer(UITapGestureRecognizer(target: chatLogController, action: #selector(ChatLogController.handleUploadTap)))
-
+            sendFileButton.addTarget(chatLogController, action: #selector(ChatLogController.handleUploadFileTap), for: .touchUpInside)
         }
-        
     }
     
     lazy var inputTextField:UITextField = {
@@ -27,6 +26,7 @@ class ChatInputContainerView : UIView,UITextFieldDelegate
         textField.delegate = self
         return textField
     }()
+    
     let sendButton:UIButton = {
         let sendButton = UIButton(type: .system)
         sendButton.setTitle("Send", for: .normal)
@@ -34,6 +34,7 @@ class ChatInputContainerView : UIView,UITextFieldDelegate
         
         return sendButton
     }()
+    
     let uploadImageView:UIImageView =
     {
         let uploadImageView = UIImageView()
@@ -42,42 +43,43 @@ class ChatInputContainerView : UIView,UITextFieldDelegate
         uploadImageView.isUserInteractionEnabled = true
         return uploadImageView
     }()
+    
+    let sendFileButton: UIButton = {
+        let sendButton = UIButton(type: .system)
+        sendButton.setTitle("File", for: .normal)
+        sendButton.translatesAutoresizingMaskIntoConstraints = false
+        return sendButton
+    }()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-        
         backgroundColor = .white
         
-
-//        uploadImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleUploadTap)))
         self.addSubview(uploadImageView)
-        
         uploadImageView.leftAnchor.constraint(equalTo: self.leftAnchor).isActive = true
         uploadImageView.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
         uploadImageView.heightAnchor.constraint(equalToConstant:44).isActive = true
         uploadImageView.widthAnchor.constraint(equalToConstant: 44).isActive = true
         
-        
+        self.addSubview(sendFileButton)
+        sendFileButton.leftAnchor.constraint(equalTo: uploadImageView.rightAnchor).isActive = true
+        sendFileButton.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
+        sendFileButton.heightAnchor.constraint(equalToConstant:44).isActive = true
+        sendFileButton.widthAnchor.constraint(equalToConstant: 44).isActive = true
+
+        self.addSubview(sendButton)
         sendButton.setTitle("Send", for: .normal)
         sendButton.translatesAutoresizingMaskIntoConstraints = false
-//        sendButton.addTarget(self, action: #selector(handleSend), for: .touchUpInside)
-        
-        self.addSubview(sendButton)
-        
         sendButton.rightAnchor.constraint(equalTo: self.rightAnchor).isActive = true
         sendButton.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
         sendButton.heightAnchor.constraint(equalTo: self.heightAnchor).isActive = true
         sendButton.widthAnchor.constraint(equalToConstant: 80).isActive = true
         
-        
-        
         self.addSubview(self.inputTextField)
-        
-        self.inputTextField.leftAnchor.constraint(equalTo: uploadImageView.rightAnchor , constant:8).isActive = true
+        self.inputTextField.leftAnchor.constraint(equalTo: sendFileButton.rightAnchor , constant:8).isActive = true
         self.inputTextField.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
         self.inputTextField.heightAnchor.constraint(equalTo: self.heightAnchor).isActive = true
         self.inputTextField.rightAnchor.constraint(equalTo: sendButton.leftAnchor).isActive = true
-        
         
         let separatorLineView = UIView()
         separatorLineView.translatesAutoresizingMaskIntoConstraints = false

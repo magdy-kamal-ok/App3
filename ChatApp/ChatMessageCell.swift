@@ -8,16 +8,21 @@
 
 import UIKit
 import AVFoundation
+import Firebase
 
 class ChatMessageCell: UICollectionViewCell {
     
     var chatLogController:ChatLogController?
-    static let blueColor = UIColor.rgb(red: 0, green: 137, blue: 249, alpha: 1)
-    static let grayColor = UIColor.rgb(red: 240, green: 240, blue: 240, alpha: 1)
+    static let blueColor = #colorLiteral(red: 0.1668872535, green: 0.2896803617, blue: 0.4808027148, alpha: 1)
+    static let grayColor = #colorLiteral(red: 0.9638487697, green: 0.9687198997, blue: 0.9772059321, alpha: 1)
     var bubbleWidthAnchor:NSLayoutConstraint?
     var bubbleViewRightAnchor:NSLayoutConstraint?
     var bubbleViewLeftAnchor:NSLayoutConstraint?
-    var message:Message?
+    var message: Message? {
+        didSet {
+            textView.isSelectable = message?.messageType != "file"
+        }
+    }
     var playerLayer:AVPlayerLayer?
     var player:AVPlayer?
     
@@ -109,8 +114,22 @@ class ChatMessageCell: UICollectionViewCell {
             self.chatLogController?.performZoomInForStartingImageView(startingImageView: imageView)
         }
     }
+    
+    @objc func handleCellTap(tapGesture: UITapGestureRecognizer) {
+        guard let message = message, let body = message.message else { return }
+        if  message.messageType == "file" {
+            if let url = URL(string: body) {
+                UIApplication.shared.open(url)
+            }
+        }
+    }
+
     override init(frame: CGRect) {
         super.init(frame: frame)
+        let tap = UITapGestureRecognizer(target: self, action: #selector(handleCellTap))
+        tap.numberOfTapsRequired = 1
+        tap.numberOfTouchesRequired = 1
+        self.addGestureRecognizer(tap)
         addSubview(bubbleView)
         addSubview(textView)
         addSubview(profileImageView)
@@ -131,7 +150,6 @@ class ChatMessageCell: UICollectionViewCell {
         textView.heightAnchor.constraint(equalTo: self.heightAnchor).isActive = true
         //textView.widthAnchor.constraint(equalToConstant: 200).isActive = true
         textView.rightAnchor.constraint(equalTo: self.bubbleView.rightAnchor).isActive = true
-
     }
     
     func setupBubbleView(){
