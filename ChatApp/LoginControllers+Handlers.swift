@@ -46,7 +46,7 @@ extension LoginController:UIImagePickerControllerDelegate, UINavigationControlle
     
     
     private func  registerUserIntoDataBaseWithUID(uid:String,values:[String:AnyObject]){
-        let ref = Database.database().reference(fromURL: "https://gameofchats-c271d.firebaseio.com/")
+        let ref = Database.database().reference(fromURL: "https://chatapp-e2d8f.firebaseio.com/")
         let usersReference = ref.child("users").child(uid)
 
         usersReference.updateChildValues(values, withCompletionBlock: { (err, ref) in

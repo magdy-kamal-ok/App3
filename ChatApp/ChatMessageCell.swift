@@ -74,7 +74,7 @@ class ChatMessageCell: UICollectionViewCell {
     
     @objc func handlePlayButton()
     {
-        if let messageUrlString = message?.videoUrl, let url = URL(string: messageUrlString)
+        if let messageUrlString = message?.message, let url = URL(string: messageUrlString)
         {
             player = AVPlayer(url: url)
             playerLayer = AVPlayerLayer(player: player)
@@ -99,7 +99,7 @@ class ChatMessageCell: UICollectionViewCell {
         // Pro Tip do not perform custom logic inside view class
         
         
-        if  message?.videoUrl != nil
+        if  message?.message != nil
         {
             return
         }

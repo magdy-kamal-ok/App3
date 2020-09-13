@@ -13,8 +13,8 @@ class UserCell: UITableViewCell {
     var message:Message?{
         didSet{
             self.setupNameAndProfile()
-            self.detailTextLabel?.text = self.message?.text
-            if let seconds = message?.timeStamp?.doubleValue
+            self.detailTextLabel?.text = self.message?.message
+            if let seconds = message?.time?.doubleValue
             {
                 let timestampDate = NSDate(timeIntervalSince1970: seconds)
                 let dateFormatter = DateFormatter()
@@ -58,9 +58,9 @@ class UserCell: UITableViewCell {
 //                    user.id = id
                    // user.setValuesForKeys(dictionary)
                     self.textLabel?.text = user.name
-                    self.detailTextLabel?.text = self.message?.text
+                    self.detailTextLabel?.text = self.message?.message
                     
-                    if let profileImageUrl = user.profileImageUrl{
+                    if let profileImageUrl = user.imageUrl {
                         
                         self.profileImageView.loadImageUsingUrlString(urlString: profileImageUrl)
                     }

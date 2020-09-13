@@ -9,15 +9,27 @@
 import UIKit
 
 class UserPerson: NSObject {
-    var id:String?
-    var name:String?
-    var email:String?
-    var profileImageUrl:String?
+    var chatId: String?
+    var name: String?
+    var imageUrl:String?
+    
     init(dictionary: [String: AnyObject]) {
-        self.id = dictionary["id"] as? String
+        self.chatId = dictionary["chatId"] as? String
         self.name = dictionary["name"] as? String
-        self.email = dictionary["email"] as? String
-        self.profileImageUrl = dictionary["profileImageUrl"] as? String
+        self.imageUrl = dictionary["imageUrl"] as? String
     }
-
 }
+
+//class UserPerson: NSObject {
+//    var id:String?
+//    var name:String?
+//    var email:String?
+//    var profileImageUrl:String?
+//    init(dictionary: [String: AnyObject]) {
+//        self.id = dictionary["id"] as? String
+//        self.name = dictionary["name"] as? String
+//        self.email = dictionary["email"] as? String
+//        self.profileImageUrl = dictionary["profileImageUrl"] as? String
+//    }
+//
+//}

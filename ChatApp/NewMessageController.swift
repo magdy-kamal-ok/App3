@@ -28,7 +28,7 @@ class NewMessageController: UITableViewController {
             if let dictionary = snapshot.value as? [String:AnyObject]
             {
                 let user = UserPerson(dictionary: dictionary)
-                user.id = snapshot.key
+                user.chatId = snapshot.key
                 //user.setValuesForKeys(dictionary)
                 self.users.append(user)
                 
@@ -49,13 +49,10 @@ class NewMessageController: UITableViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: cellId, for: indexPath) as! UserCell
         let user = users[indexPath.row]
         cell.textLabel?.text = user.name
-        cell.detailTextLabel?.text = user.email
 
-        if let profileImageUrl = user.profileImageUrl{
-            
+        if let profileImageUrl = user.imageUrl {
             cell.profileImageView.loadImageUsingUrlString(urlString: profileImageUrl)
         }
-        
         return cell
     }
     

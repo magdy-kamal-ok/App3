@@ -136,7 +136,7 @@ class MessagesController: UITableViewController {
         self.messages = Array(self.messagesDictionary.values)
         self.messages.sort(by: { (message1, message2) -> Bool in
             
-            return (message1.timeStamp?.int32Value)! > (message2.timeStamp?.int32Value)!
+            return (message1.time?.int32Value)! > (message2.time?.int32Value)!
         })
         DispatchQueue.main.async {
             self.tableView.reloadData()
@@ -203,7 +203,7 @@ class MessagesController: UITableViewController {
         profileImageView.contentMode = .scaleAspectFill
         profileImageView.layer.cornerRadius = 20
         profileImageView.layer.masksToBounds = true
-        if let profileImageUrl = user.profileImageUrl
+        if let profileImageUrl = user.imageUrl
         {
             profileImageView.loadImageUsingUrlString(urlString:profileImageUrl)
         }
@@ -269,7 +269,7 @@ class MessagesController: UITableViewController {
             guard let dictionary = snapshot.value as? [String:AnyObject] else {return}
             
             let user = UserPerson(dictionary: dictionary)
-            user.id = chatPartnerId
+            user.chatId = chatPartnerId
             //user.setValuesForKeys(dictionary)
             self.showChatControllerForUser(user: user)
             

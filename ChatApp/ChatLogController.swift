@@ -80,8 +80,8 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
                 if let thumbnailImage = self.thumbnailImageForVideoUrl(videoUrl: url)
                 {
                     self.uploadToFireBaseStorageUsingImage(image: thumbnailImage, completion: { (imageUrl) in
-                        
-                        let values = ["imageUrl":imageUrl, "videoUrl":storageUrl, "imageWidth":thumbnailImage.size.width , "imageHeight":thumbnailImage.size.height] as [String : AnyObject]
+                        let values = ["messageType": "video", "message": storageUrl] as [String : AnyObject]
+//                        let values = ["imageUrl":imageUrl, "videoUrl":storageUrl, "imageWidth":thumbnailImage.size.width , "imageHeight":thumbnailImage.size.height] as [String : AnyObject]
                         self.sendMessageWithProperties(properties: values)
                         
                     })
@@ -294,19 +294,19 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
     
     func sendMessageWithImageUrl(imageUrl:String, image:UIImage)
     {
-        let values = ["imageUrl":imageUrl, "imageWidth":image.size.width , "imageHeight":image.size.height] as [String : AnyObject]
+//        let values = ["imageUrl":imageUrl, "imageWidth":image.size.width , "imageHeight":image.size.height] as [String : AnyObject]
+        let values = ["messageType":"image", "message": imageUrl] as [String : AnyObject]
         self.sendMessageWithProperties(properties: values)
     }
 
     private func sendMessageWithProperties(properties:[String:AnyObject])
     {
-        
         let ref = Database.database().reference().child("messages")
         let childRef = ref.childByAutoId()
-        let toId = user?.id
-        let fromId = Auth.auth().currentUser?.uid
-        let timeStamp:NSNumber = NSNumber(value: Date().timeIntervalSinceNow)
-        var values:[String:AnyObject] = ["toId":toId, "fromId":fromId, "timeStamp":timeStamp] as [String : AnyObject]
+        let receiverId = user?.chatId
+        let senderId = Auth.auth().currentUser?.uid
+        let time:NSNumber = NSNumber(value: Date().timeIntervalSinceNow)
+        var values:[String:AnyObject] = ["receiverId":receiverId, "senderId":senderId, "time":time] as [String : AnyObject]
         //childRef.updateChildValues(values)
         
         // append properties dictionary onto values somehow??
@@ -320,11 +320,11 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
                 return
             }
             self.inputContainerView.inputTextField.text = nil
-            let userMessagesRef = Database.database().reference().child("user-messages").child(fromId!).child(toId!)
+            let userMessagesRef = Database.database().reference().child("user-messages").child(senderId!).child(receiverId!)
             let messageId = childRef.key
             userMessagesRef.updateChildValues([messageId:1])
             
-            let receiptientUserMessageRef = Database.database().reference().child("user-messages").child(toId!).child(fromId!)
+            let receiptientUserMessageRef = Database.database().reference().child("user-messages").child(receiverId!).child(senderId!)
             
             receiptientUserMessageRef.updateChildValues([messageId:1])
         }
@@ -336,7 +336,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
     }
     
     func observeMessages() {
-        guard let uid = Auth.auth().currentUser?.uid, let toId = user?.id else {
+        guard let uid = Auth.auth().currentUser?.uid, let toId = user?.chatId else {
             return
         }
         
@@ -383,22 +383,22 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellId, for: indexPath) as? ChatMessageCell
         cell?.chatLogController = self
         let message = messages[indexPath.item]
-        cell?.textView.text = message.text
+        cell?.textView.text = message.message
         cell?.message = message
         self.setupCell(cell: cell!, message: message)
 
         // set bubble width for the cell
-        if let text = message.text
+        if let text = message.message
         {
             cell?.textView.isHidden = false
             cell?.bubbleWidthAnchor?.constant = self.estimatedFrameForText(text: text).width + 32
         }
-        else if message.imageUrl != nil
+        else if message.messageType == "image", message.message != nil
         {
             cell?.textView.isHidden = true
             cell?.bubbleWidthAnchor?.constant = 200
         }
-        if message.videoUrl != nil
+        if message.messageType == "video", message.message != nil
         {
             cell?.playButton.isHidden = false
         }
@@ -414,17 +414,17 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         var height:CGFloat = 80
         let message = messages[indexPath.item]
         
-        if let text = message.text{
+        if let text = message.message{
             height = self.estimatedFrameForText(text: text).height + 20
         }
-        else if let imageWidth = message.imageWidth?.floatValue, let imageHeight = message.imageHeight?.floatValue
-        {
-            
-            // h1/w1 = h2/w2
-            // h1 = h2 / (w1*w2)
-            height = CGFloat(imageHeight / imageWidth * 200)
-            
-        }
+//        else if let imageWidth = message.imageWidth?.floatValue, let imageHeight = message.imageHeight?.floatValue
+//        {
+//
+//            // h1/w1 = h2/w2
+//            // h1 = h2 / (w1*w2)
+//            height = CGFloat(imageHeight / imageWidth * 200)
+//
+//        }
         // this width because of the accessairy input
         
         let width = UIScreen.main.bounds.width
@@ -435,11 +435,11 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
     private func setupCell(cell:ChatMessageCell, message:Message)
     {
 
-        if let profileImageUrl = self.user?.profileImageUrl
+        if let profileImageUrl = self.user?.imageUrl
         {
             cell.profileImageView.loadImageUsingUrlString(urlString: profileImageUrl)
         }
-        if message.fromId == Auth.auth().currentUser?.uid
+        if message.senderId == Auth.auth().currentUser?.uid
         {
             // blue message
             cell.bubbleView.backgroundColor = ChatMessageCell.blueColor
@@ -456,7 +456,8 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
             cell.bubbleViewRightAnchor?.isActive = false
             cell.bubbleViewLeftAnchor?.isActive = true
         }
-        if let messageImageUrl = message.imageUrl
+        if message.messageType == "image" || message.messageType == "video",
+            let messageImageUrl = message.message
         {
             cell.messageImageView.isHidden = false
             cell.messageImageView.loadImageUsingUrlString(urlString: messageImageUrl)
