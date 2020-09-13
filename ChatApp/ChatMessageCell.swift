@@ -12,7 +12,7 @@ import Firebase
 
 class ChatMessageCell: UICollectionViewCell {
     
-    var chatLogController:ChatLogController?
+    weak var chatLogController:ChatLogController?
     static let blueColor = #colorLiteral(red: 0.1668872535, green: 0.2896803617, blue: 0.4808027148, alpha: 1)
     static let grayColor = #colorLiteral(red: 0.9638487697, green: 0.9687198997, blue: 0.9772059321, alpha: 1)
     var bubbleWidthAnchor:NSLayoutConstraint?
