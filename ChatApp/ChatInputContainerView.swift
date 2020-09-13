@@ -19,7 +19,6 @@ class ChatInputContainerView : UIView,UITextFieldDelegate
             animateChatInputContainerView()
             
         }
-        
     }
     
     lazy var inputTextField:UITextField = {
