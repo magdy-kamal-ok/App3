@@ -14,6 +14,7 @@ import MobileCoreServices
 class ChatLogController: UICollectionViewController, UITextFieldDelegate, UICollectionViewDelegateFlowLayout,UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     let cellId = "cellId"
+    var senderId = Auth.auth().currentUser?.uid
     var user:UserPerson?{
         didSet{
             navigationItem.title = user?.name
@@ -66,11 +67,8 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
                 {
                     self.uploadToFireBaseStorageUsingImage(image: thumbnailImage, completion: { (imageUrl) in
                         let values = ["messageType": "video", "message": storageUrl] as [String : AnyObject]
-                        //                        let values = ["imageUrl":imageUrl, "videoUrl":storageUrl, "imageWidth":thumbnailImage.size.width , "imageHeight":thumbnailImage.size.height] as [String : AnyObject]
                         self.sendMessageWithProperties(properties: values)
-                        
                     })
-                    
                 }
             }
         })
@@ -244,7 +242,6 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         let ref = Database.database().reference().child("messages")
         let childRef = ref.childByAutoId()
         let receiverId = user?.chatId
-        let senderId = Auth.auth().currentUser?.uid
         let time:NSNumber = NSNumber(value: Date().timeIntervalSinceNow)
         var values:[String:AnyObject] = ["receiverId":receiverId, "senderId":senderId, "time":time] as [String: AnyObject]
         properties.forEach ({values[$0] = $1})
@@ -253,11 +250,11 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
                 return
             }
             self.inputContainerView.inputTextField.text = nil
-            let userMessagesRef = Database.database().reference().child("user-messages").child(senderId!).child(receiverId!)
+            let userMessagesRef = Database.database().reference().child("user-messages").child(self.senderId!).child(receiverId!)
             let messageId = childRef.key
             userMessagesRef.updateChildValues([messageId:1])
             
-            let receiptientUserMessageRef = Database.database().reference().child("user-messages").child(receiverId!).child(senderId!)
+            let receiptientUserMessageRef = Database.database().reference().child("user-messages").child(receiverId!).child(self.senderId!)
             
             receiptientUserMessageRef.updateChildValues([messageId:1])
         }
@@ -371,22 +368,24 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         {
             cell.profileImageView.loadImageUsingUrlString(urlString: profileImageUrl)
         }
-        if message.senderId == Auth.auth().currentUser?.uid
+        if message.senderId == senderId
         {
             // blue message
+            cell.isSender = true
             cell.bubbleView.backgroundColor = ChatMessageCell.blueColor
             cell.textView.textColor = .white
-            cell.bubbleViewLeftAnchor?.isActive = false
-            cell.bubbleViewRightAnchor?.isActive = true
+            cell.bubbleViewLeadingAnchor?.isActive = false
+            cell.bubbleViewTrailingAnchor?.isActive = true
             cell.profileImageView.isHidden = true
         }
         else
         {
+            cell.isSender = false
             cell.bubbleView.backgroundColor = ChatMessageCell.grayColor
             cell.textView.textColor = .black
             cell.profileImageView.isHidden = false 
-            cell.bubbleViewRightAnchor?.isActive = false
-            cell.bubbleViewLeftAnchor?.isActive = true
+            cell.bubbleViewTrailingAnchor?.isActive = false
+            cell.bubbleViewLeadingAnchor?.isActive = true
         }
         if message.messageType == "image" || message.messageType == "video",
             let messageImageUrl = message.message

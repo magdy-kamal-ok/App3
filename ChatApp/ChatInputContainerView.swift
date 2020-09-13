@@ -15,9 +15,10 @@ class ChatInputContainerView : UIView,UITextFieldDelegate
     weak var chatLogController:ChatLogController?{
         didSet{
             sendButton.addTarget(chatLogController, action: #selector(ChatLogController.handleSend), for: .touchUpInside)
-            //uploadImageView.addGestureRecognizer(UITapGestureRecognizer(target: chatLogController, action: #selector(ChatLogController.handleUploadTap)))
+            galleryButton.addTarget(chatLogController, action: #selector(ChatLogController.handleUploadTap), for: .touchUpInside)
+            cameraButton.addTarget(chatLogController, action: #selector(ChatLogController.handleUploadTap), for: .touchUpInside)
+            fileButton.addTarget(chatLogController, action: #selector(ChatLogController.handleUploadFileTap), for: .touchUpInside)
             animateChatInputContainerView()
-            
         }
     }
     

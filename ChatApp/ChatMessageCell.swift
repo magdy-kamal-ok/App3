@@ -16,13 +16,14 @@ class ChatMessageCell: UICollectionViewCell {
     static let blueColor = #colorLiteral(red: 0.1668872535, green: 0.2896803617, blue: 0.4808027148, alpha: 1)
     static let grayColor = #colorLiteral(red: 0.9638487697, green: 0.9687198997, blue: 0.9772059321, alpha: 1)
     var bubbleWidthAnchor:NSLayoutConstraint?
-    var bubbleViewRightAnchor:NSLayoutConstraint?
-    var bubbleViewLeftAnchor:NSLayoutConstraint?
+    var bubbleViewTrailingAnchor:NSLayoutConstraint?
+    var bubbleViewLeadingAnchor:NSLayoutConstraint?
     var message: Message? {
         didSet {
             textView.isSelectable = message?.messageType != "file"
         }
     }
+    var isSender = false
     var playerLayer:AVPlayerLayer?
     var player:AVPlayer?
     
@@ -51,7 +52,6 @@ class ChatMessageCell: UICollectionViewCell {
     let bubbleView:UIView = {
         let view = UIView()
         view.backgroundColor = ChatMessageCell.blueColor
-        view.layer.cornerRadius = 16
         view.layer.masksToBounds = true
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
@@ -91,12 +91,28 @@ class ChatMessageCell: UICollectionViewCell {
         }
     }
     
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        //guard message?.messageType != "image" else { return }
+        
+        if message?.messageType == "image" {
+            bubbleView.layer.cornerRadius = 5
+            return
+        }
+        if isSender {
+            bubbleView.roundCorners(corners: [.topLeft, .bottomLeft], radius: bubbleView.bounds.height/2)
+        } else {
+            bubbleView.layer.cornerRadius = bubbleView.bounds.height/2
+        }
+    }
+    
     override func prepareForReuse() {
         super.prepareForReuse()
         // this because of reusing cell
         playerLayer?.removeFromSuperlayer()
         player?.pause()
         activityIndicator.stopAnimating()
+        bubbleView.layer.cornerRadius = 0
     }
     
     @objc func handleZoomTap(tapGesture:UITapGestureRecognizer)
@@ -145,19 +161,21 @@ class ChatMessageCell: UICollectionViewCell {
     }
     
     func setupTextView(){
-        textView.leftAnchor.constraint(equalTo: self.bubbleView.leftAnchor, constant:8).isActive = true
+        textView.leadingAnchor.constraint(equalTo: self.bubbleView.leadingAnchor, constant:8).isActive = true
         textView.topAnchor.constraint(equalTo: self.topAnchor).isActive = true
         textView.heightAnchor.constraint(equalTo: self.heightAnchor).isActive = true
         //textView.widthAnchor.constraint(equalToConstant: 200).isActive = true
-        textView.rightAnchor.constraint(equalTo: self.bubbleView.rightAnchor).isActive = true
+        textView.trailingAnchor.constraint(equalTo: self.bubbleView.trailingAnchor).isActive = true
     }
     
-    func setupBubbleView(){
-        bubbleViewRightAnchor = bubbleView.rightAnchor.constraint(equalTo: self.rightAnchor, constant:-8)
-        bubbleViewRightAnchor?.isActive = true
+    func setupBubbleView() {
         
-        bubbleViewLeftAnchor = bubbleView.leftAnchor.constraint(equalTo: profileImageView.rightAnchor, constant:8)
-        bubbleViewLeftAnchor?.isActive = false
+        
+        bubbleViewTrailingAnchor = bubbleView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant:-8)
+        bubbleViewTrailingAnchor?.isActive = true
+        
+        bubbleViewLeadingAnchor = bubbleView.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant:8)
+        bubbleViewLeadingAnchor?.isActive = false
         
         bubbleView.topAnchor.constraint(equalTo: self.topAnchor).isActive = true
         bubbleView.heightAnchor.constraint(equalTo: self.heightAnchor).isActive = true
@@ -166,14 +184,14 @@ class ChatMessageCell: UICollectionViewCell {
     }
     
     func setupProfileImageView(){
-        profileImageView.leftAnchor.constraint(equalTo: self.leftAnchor, constant:8).isActive = true
+        profileImageView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant:8).isActive = true
         profileImageView.bottomAnchor.constraint(equalTo: self.bottomAnchor).isActive = true
         profileImageView.heightAnchor.constraint(equalToConstant: 32).isActive = true
         profileImageView.widthAnchor.constraint(equalToConstant: 32).isActive = true
     }
     
     func setupMessageImageView(){
-        messageImageView.leftAnchor.constraint(equalTo: self.bubbleView.leftAnchor, constant:8).isActive = true
+        messageImageView.leadingAnchor.constraint(equalTo: self.bubbleView.leadingAnchor, constant:8).isActive = true
         messageImageView.topAnchor.constraint(equalTo: self.bubbleView.topAnchor).isActive = true
         messageImageView.heightAnchor.constraint(equalTo: self.bubbleView.heightAnchor).isActive = true
         messageImageView.widthAnchor.constraint(equalTo: self.bubbleView.widthAnchor).isActive = true
