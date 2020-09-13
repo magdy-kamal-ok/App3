@@ -28,7 +28,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
 
     lazy var inputContainerView:ChatInputContainerView = {
         
-        let chatInputContainerView = ChatInputContainerView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 50))
+        let chatInputContainerView = ChatInputContainerView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 15))
         
         chatInputContainerView.chatLogController = self
         
@@ -164,7 +164,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
     override func viewDidLoad() {
         super.viewDidLoad()
         self.collectionView?.backgroundColor = UIColor.white
-        
+        collectionView.becomeFirstResponder()
         
         // we will use user accessory view
         //setupInputComponents()

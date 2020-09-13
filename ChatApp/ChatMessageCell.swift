@@ -11,7 +11,7 @@ import AVFoundation
 
 class ChatMessageCell: UICollectionViewCell {
     
-    var chatLogController:ChatLogController?
+    weak var chatLogController:ChatLogController?
     static let blueColor = UIColor.rgb(red: 0, green: 137, blue: 249, alpha: 1)
     static let grayColor = UIColor.rgb(red: 240, green: 240, blue: 240, alpha: 1)
     var bubbleWidthAnchor:NSLayoutConstraint?
