@@ -17,19 +17,15 @@ class ChatMessageCell: UICollectionViewCell {
     static let grayColor = #colorLiteral(red: 0.9638487697, green: 0.9687198997, blue: 0.9772059321, alpha: 1)
     var bubbleWidthAnchor:NSLayoutConstraint?
     var bubbleViewTrailingAnchor:NSLayoutConstraint?
+    var bubbleViewLeadingAnchor:NSLayoutConstraint?
     var timeLabelLeadingAnchor:NSLayoutConstraint?
     var timeLabelTrailingAnchor:NSLayoutConstraint?
-    var bubbleViewLeadingAnchor:NSLayoutConstraint?
     var message: Message? {
         didSet {
             textView.isSelectable = message?.messageType != "file"
         }
     }
-    var isSender = false {
-        didSet {
-            self.layoutSubviews()
-        }
-    }
+    var isSender = false
 //    var playerLayer:AVPlayerLayer?
 //    var player:AVPlayer?
 //
@@ -99,9 +95,9 @@ class ChatMessageCell: UICollectionViewCell {
     override func layoutSubviews() {
         super.layoutSubviews()
         if isSender {
-            bubbleView.roundCorners(corners: [.topLeft, .bottomLeft], radius: bubbleView.bounds.height/2)
+            bubbleView.roundCorners(corners: [.topLeft, .bottomLeft], radius: 16)
         } else {
-            bubbleView.roundCorners(corners: [.topRight, .bottomRight], radius: bubbleView.bounds.height/2)
+            bubbleView.roundCorners(corners: [.topRight, .bottomRight], radius: 16)
         }
     }
     
@@ -164,7 +160,7 @@ class ChatMessageCell: UICollectionViewCell {
         textView.topAnchor.constraint(equalTo: self.topAnchor).isActive = true
         textView.heightAnchor.constraint(equalTo: self.heightAnchor).isActive = true
         //textView.widthAnchor.constraint(equalToConstant: 200).isActive = true
-        textView.trailingAnchor.constraint(equalTo: self.bubbleView.trailingAnchor).isActive = true
+        textView.trailingAnchor.constraint(equalTo: self.bubbleView.trailingAnchor, constant: -8).isActive = true
     }
     
     func setupTimeLabel(){
@@ -192,9 +188,10 @@ class ChatMessageCell: UICollectionViewCell {
         
     func setupMessageImageView(){
         messageImageView.leadingAnchor.constraint(equalTo: self.bubbleView.leadingAnchor, constant:8).isActive = true
+        messageImageView.trailingAnchor.constraint(equalTo: self.bubbleView.trailingAnchor, constant:-8).isActive = true
         messageImageView.topAnchor.constraint(equalTo: self.bubbleView.topAnchor).isActive = true
         messageImageView.heightAnchor.constraint(equalTo: self.bubbleView.heightAnchor).isActive = true
-        messageImageView.widthAnchor.constraint(equalTo: self.bubbleView.widthAnchor).isActive = true
+//        messageImageView.widthAnchor.constraint(equalTo: self.bubbleView.widthAnchor).isActive = true
         
 //        bubbleView.addSubview(playButton)
 //

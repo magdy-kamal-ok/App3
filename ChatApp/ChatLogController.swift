@@ -336,7 +336,6 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
             cell?.textView.text = "Attached File"
             cell?.bubbleWidthAnchor?.constant = self.estimatedFrameForText(text: "Attached File").width + 32
         }
-        
 //        if message.messageType == "video", message.message != nil {
 //            cell?.playButton.isHidden = false
 //        } else {

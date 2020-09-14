@@ -129,7 +129,7 @@ class UserCell: UITableViewCell {
     }
     func setupTimeLabel(){
         timeLabel.trailingAnchor.constraint(equalTo: mainView.trailingAnchor,constant:-8).isActive = true
-        timeLabel.topAnchor.constraint(equalTo: mainView.topAnchor, constant:18).isActive = true
+        timeLabel.topAnchor.constraint(equalTo: profileImageView.topAnchor).isActive = true
         timeLabel.widthAnchor.constraint(equalToConstant: 100).isActive = true
         timeLabel.heightAnchor.constraint(equalTo: (self.textLabel?.heightAnchor)!).isActive = true
         
@@ -138,17 +138,17 @@ class UserCell: UITableViewCell {
     
     func setupNameLabel(){
         nameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor,constant:8).isActive = true
-        nameLabel.topAnchor.constraint(equalTo: mainView.topAnchor, constant:16).isActive = true
+        nameLabel.topAnchor.constraint(equalTo: profileImageView.topAnchor).isActive = true
         nameLabel.trailingAnchor.constraint(equalTo: timeLabel.leadingAnchor, constant:8).isActive = true
 //        timeLabel.heightAnchor.constraint(equalTo: (self.textLabel?.heightAnchor)!).isActive = true
         
     }
     
     func setupLastMessageLabel(){
-         lastMessageLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor,constant:8).isActive = true
-         lastMessageLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant:-8).isActive = true
+         lastMessageLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor).isActive = true
+         lastMessageLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant:8).isActive = true
          lastMessageLabel.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor).isActive = true
-         lastMessageLabel.bottomAnchor.constraint(equalTo: mainView.bottomAnchor).isActive = true
+         lastMessageLabel.bottomAnchor.constraint(equalTo: profileImageView.bottomAnchor).isActive = true
      }
     
     required init?(coder aDecoder: NSCoder) {
