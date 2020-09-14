@@ -17,29 +17,35 @@ class ChatMessageCell: UICollectionViewCell {
     static let grayColor = #colorLiteral(red: 0.9638487697, green: 0.9687198997, blue: 0.9772059321, alpha: 1)
     var bubbleWidthAnchor:NSLayoutConstraint?
     var bubbleViewTrailingAnchor:NSLayoutConstraint?
+    var timeLabelLeadingAnchor:NSLayoutConstraint?
+    var timeLabelTrailingAnchor:NSLayoutConstraint?
     var bubbleViewLeadingAnchor:NSLayoutConstraint?
     var message: Message? {
         didSet {
             textView.isSelectable = message?.messageType != "file"
         }
     }
-    var isSender = false
-    var playerLayer:AVPlayerLayer?
-    var player:AVPlayer?
-    
-    let activityIndicator:UIActivityIndicatorView = {
-        let aiv = UIActivityIndicatorView(style: .whiteLarge)
-        aiv.translatesAutoresizingMaskIntoConstraints = false
-        return aiv
-    }()
-    
-    lazy var playButton:UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("play", for: .normal)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(handlePlayButton), for: .touchUpInside)
-        return button
-    }()
+    var isSender = false {
+        didSet {
+            self.layoutSubviews()
+        }
+    }
+//    var playerLayer:AVPlayerLayer?
+//    var player:AVPlayer?
+//
+//    let activityIndicator:UIActivityIndicatorView = {
+//        let aiv = UIActivityIndicatorView(style: .whiteLarge)
+//        aiv.translatesAutoresizingMaskIntoConstraints = false
+//        return aiv
+//    }()
+//
+//    lazy var playButton:UIButton = {
+//        let button = UIButton(type: .system)
+//        button.setTitle("play", for: .normal)
+//        button.translatesAutoresizingMaskIntoConstraints = false
+//        button.addTarget(self, action: #selector(handlePlayButton), for: .touchUpInside)
+//        return button
+//    }()
     let textView:UITextView = {
         let view = UITextView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -56,7 +62,15 @@ class ChatMessageCell: UICollectionViewCell {
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
-        
+       
+    let timeLabel:UILabel={
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = UIFont.systemFont(ofSize: 12)
+        label.textColor = UIColor.lightGray
+        return label
+    }()
+    
     lazy var messageImageView:CustomImageView = {
         let imageView = CustomImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
@@ -68,35 +82,35 @@ class ChatMessageCell: UICollectionViewCell {
         return imageView
     }()
     
-    @objc func handlePlayButton()
-    {
-        if let messageUrlString = message?.message, let url = URL(string: messageUrlString)
-        {
-            player = AVPlayer(url: url)
-            playerLayer = AVPlayerLayer(player: player)
-            playerLayer?.frame = bubbleView.bounds
-            bubbleView.layer.addSublayer(playerLayer!)
-            activityIndicator.startAnimating()
-            player?.play()
-            playButton.isHidden = true
-        }
-    }
+//    @objc func handlePlayButton()
+//    {
+//        if let messageUrlString = message?.message, let url = URL(string: messageUrlString)
+//        {
+//            player = AVPlayer(url: url)
+//            playerLayer = AVPlayerLayer(player: player)
+//            playerLayer?.frame = bubbleView.bounds
+//            bubbleView.layer.addSublayer(playerLayer!)
+//            activityIndicator.startAnimating()
+//            player?.play()
+//            playButton.isHidden = true
+//        }
+//    }
     
     override func layoutSubviews() {
         super.layoutSubviews()
         if isSender {
             bubbleView.roundCorners(corners: [.topLeft, .bottomLeft], radius: bubbleView.bounds.height/2)
         } else {
-            bubbleView.layer.cornerRadius = bubbleView.bounds.height/2
+            bubbleView.roundCorners(corners: [.topRight, .bottomRight], radius: bubbleView.bounds.height/2)
         }
     }
     
     override func prepareForReuse() {
         super.prepareForReuse()
         // this because of reusing cell
-        playerLayer?.removeFromSuperlayer()
-        player?.pause()
-        activityIndicator.stopAnimating()
+//        playerLayer?.removeFromSuperlayer()
+//        player?.pause()
+//        activityIndicator.stopAnimating()
         bubbleView.layer.cornerRadius = 0
     }
     
@@ -133,9 +147,11 @@ class ChatMessageCell: UICollectionViewCell {
         self.addGestureRecognizer(tap)
         addSubview(bubbleView)
         addSubview(textView)
+        addSubview(timeLabel)
         bubbleView.addSubview(messageImageView)
         setupBubbleView()
         setupTextView()
+        setupTimeLabel()
         setupMessageImageView()
     }
     
@@ -151,16 +167,26 @@ class ChatMessageCell: UICollectionViewCell {
         textView.trailingAnchor.constraint(equalTo: self.bubbleView.trailingAnchor).isActive = true
     }
     
+    func setupTimeLabel(){
+        timeLabel.topAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: 8).isActive = true
+        timeLabel.heightAnchor.constraint(equalToConstant: 21).isActive = true
+        timeLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: 8).isActive = true
+        timeLabelLeadingAnchor = timeLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 8)
+        timeLabelLeadingAnchor?.isActive = false
+        timeLabelTrailingAnchor = timeLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8)
+        timeLabelTrailingAnchor?.isActive = false
+    }
+    
     func setupBubbleView() {
-        bubbleViewTrailingAnchor = bubbleView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant:-8)
+        bubbleViewTrailingAnchor = bubbleView.trailingAnchor.constraint(equalTo: self.trailingAnchor)
         bubbleViewTrailingAnchor?.isActive = true
         
-        bubbleViewLeadingAnchor = bubbleView.leadingAnchor.constraint(equalTo: leadingAnchor, constant:8)
+        bubbleViewLeadingAnchor = bubbleView.leadingAnchor.constraint(equalTo: leadingAnchor)
         bubbleViewLeadingAnchor?.isActive = false
         
         bubbleView.topAnchor.constraint(equalTo: self.topAnchor).isActive = true
-        bubbleView.heightAnchor.constraint(equalTo: self.heightAnchor).isActive = true
-        bubbleWidthAnchor = bubbleView.widthAnchor.constraint(equalToConstant: 200)
+//        bubbleView.heightAnchor.constraint(equalTo: self.heightAnchor).isActive = true
+        bubbleWidthAnchor = bubbleView.widthAnchor.constraint(equalToConstant: 250)
         bubbleWidthAnchor?.isActive = true
     }
         
@@ -170,22 +196,22 @@ class ChatMessageCell: UICollectionViewCell {
         messageImageView.heightAnchor.constraint(equalTo: self.bubbleView.heightAnchor).isActive = true
         messageImageView.widthAnchor.constraint(equalTo: self.bubbleView.widthAnchor).isActive = true
         
-        bubbleView.addSubview(playButton)
-        
-        
-        playButton.centerXAnchor.constraint(equalTo: self.bubbleView.centerXAnchor).isActive = true
-        playButton.centerYAnchor.constraint(equalTo: self.bubbleView.centerYAnchor).isActive = true
-        playButton.heightAnchor.constraint(equalToConstant:50).isActive = true
-        playButton.widthAnchor.constraint(equalToConstant:50).isActive = true
-        
-        
-        bubbleView.addSubview(activityIndicator)
-        
-        
-        activityIndicator.centerXAnchor.constraint(equalTo: self.bubbleView.centerXAnchor).isActive = true
-        activityIndicator.centerYAnchor.constraint(equalTo: self.bubbleView.centerYAnchor).isActive = true
-        activityIndicator.heightAnchor.constraint(equalToConstant:50).isActive = true
-        activityIndicator.widthAnchor.constraint(equalToConstant:50).isActive = true
+//        bubbleView.addSubview(playButton)
+//
+//
+//        playButton.centerXAnchor.constraint(equalTo: self.bubbleView.centerXAnchor).isActive = true
+//        playButton.centerYAnchor.constraint(equalTo: self.bubbleView.centerYAnchor).isActive = true
+//        playButton.heightAnchor.constraint(equalToConstant:50).isActive = true
+//        playButton.widthAnchor.constraint(equalToConstant:50).isActive = true
+//
+//
+//        bubbleView.addSubview(activityIndicator)
+//
+//
+//        activityIndicator.centerXAnchor.constraint(equalTo: self.bubbleView.centerXAnchor).isActive = true
+//        activityIndicator.centerYAnchor.constraint(equalTo: self.bubbleView.centerYAnchor).isActive = true
+//        activityIndicator.heightAnchor.constraint(equalToConstant:50).isActive = true
+//        activityIndicator.widthAnchor.constraint(equalToConstant:50).isActive = true
         
     }
 }

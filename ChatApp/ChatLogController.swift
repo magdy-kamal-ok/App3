@@ -314,6 +314,13 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         cell?.chatLogController = self
         let message = messages[indexPath.item]
         cell?.textView.text = message.message
+        if let seconds = message.time?.doubleValue
+        {
+            let timestampDate = NSDate(timeIntervalSince1970: seconds)
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "hh:mm:ss a"
+            cell?.timeLabel.text = dateFormatter.string(from: timestampDate as Date)
+        }
         cell?.message = message
         self.setupCell(cell: cell!, message: message)
         
@@ -330,11 +337,11 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
             cell?.bubbleWidthAnchor?.constant = self.estimatedFrameForText(text: "Attached File").width + 32
         }
         
-        if message.messageType == "video", message.message != nil {
-            cell?.playButton.isHidden = false
-        } else {
-            cell?.playButton.isHidden = true
-        }
+//        if message.messageType == "video", message.message != nil {
+//            cell?.playButton.isHidden = false
+//        } else {
+//            cell?.playButton.isHidden = true
+//        }
         return cell!
     }
     
@@ -344,7 +351,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         let message = messages[indexPath.item]
         let text = message.messageType == "file" ? "Attached File" : message.message
         if let text = text {
-            height = self.estimatedFrameForText(text: text).height + 20
+            height = self.estimatedFrameForText(text: text).height + 41
         }
         //        else if let imageWidth = message.imageWidth?.floatValue, let imageHeight = message.imageHeight?.floatValue
         //        {
@@ -372,6 +379,8 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
             cell.textView.textColor = .white
             cell.bubbleViewLeadingAnchor?.isActive = false
             cell.bubbleViewTrailingAnchor?.isActive = true
+            cell.timeLabelLeadingAnchor?.isActive = false
+            cell.timeLabelTrailingAnchor?.isActive = true
         }
         else
         {
@@ -380,6 +389,8 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
             cell.textView.textColor = .black
             cell.bubbleViewTrailingAnchor?.isActive = false
             cell.bubbleViewLeadingAnchor?.isActive = true
+            cell.timeLabelLeadingAnchor?.isActive = true
+            cell.timeLabelTrailingAnchor?.isActive = false
         }
         if message.messageType == "image" || message.messageType == "video",
             let messageImageUrl = message.message
