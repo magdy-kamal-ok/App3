@@ -182,7 +182,13 @@ class ChatInputContainerView : UIView,UITextFieldDelegate
     }
     
     @objc func handleAddButton() {
-        topContainerView.isHidden = false
+        topContainerView.isHidden = !topContainerView.isHidden
+        if topContainerView.isHidden {
+            addButton.setImage(UIImage(named: "ic-plus"), for: .normal)
+        } else {
+            addButton.setImage(UIImage(named: "ic-close"), for: .normal)
+        }
+        
     }
     
     override func layoutSubviews() {
