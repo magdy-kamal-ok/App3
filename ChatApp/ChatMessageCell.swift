@@ -23,6 +23,7 @@ class ChatMessageCell: UICollectionViewCell {
     var message: Message? {
         didSet {
             textView.isSelectable = message?.messageType != "file"
+            fileIconImageView.isHidden = message?.messageType != "file"
         }
     }
     var isSender = false
@@ -42,7 +43,16 @@ class ChatMessageCell: UICollectionViewCell {
 //        button.addTarget(self, action: #selector(handlePlayButton), for: .touchUpInside)
 //        return button
 //    }()
-    let textView:UITextView = {
+    
+    lazy var stackView: UIStackView = {
+        let view = UIStackView(arrangedSubviews: [fileIconImageView, textView])
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.axis = .horizontal
+        view.alignment = .fill
+        return view
+    }()
+
+    let textView: UITextView = {
         let view = UITextView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.font = UIFont.systemFont(ofSize: 16)
@@ -51,7 +61,16 @@ class ChatMessageCell: UICollectionViewCell {
         view.isEditable = false
         return view
     }()
-    let bubbleView:UIView = {
+    
+    lazy var fileIconImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.image = #imageLiteral(resourceName: "ic-file-picker")
+        imageView.contentMode = .scaleAspectFit
+        return imageView
+    }()
+
+    let bubbleView: UIView = {
         let view = UIView()
         view.backgroundColor = ChatMessageCell.blueColor
         view.layer.masksToBounds = true
@@ -94,6 +113,7 @@ class ChatMessageCell: UICollectionViewCell {
     
     override func layoutSubviews() {
         super.layoutSubviews()
+        
         if isSender {
             bubbleView.roundCorners(corners: [.topLeft, .bottomLeft], radius: 16)
         } else {
@@ -138,32 +158,35 @@ class ChatMessageCell: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
         let tap = UITapGestureRecognizer(target: self, action: #selector(handleCellTap))
-        tap.numberOfTapsRequired = 1
-        tap.numberOfTouchesRequired = 1
         self.addGestureRecognizer(tap)
         addSubview(bubbleView)
-        addSubview(textView)
         addSubview(timeLabel)
+        bubbleView.addSubview(stackView)
         bubbleView.addSubview(messageImageView)
         setupBubbleView()
         setupTextView()
         setupTimeLabel()
         setupMessageImageView()
+        setupFileIconImageView()
     }
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func setupTextView(){
-        textView.leadingAnchor.constraint(equalTo: self.bubbleView.leadingAnchor, constant:8).isActive = true
-        textView.topAnchor.constraint(equalTo: self.topAnchor).isActive = true
-        textView.heightAnchor.constraint(equalTo: self.heightAnchor).isActive = true
-        //textView.widthAnchor.constraint(equalToConstant: 200).isActive = true
-        textView.trailingAnchor.constraint(equalTo: self.bubbleView.trailingAnchor, constant: -8).isActive = true
+    func setupFileIconImageView() {
+        fileIconImageView.widthAnchor.constraint(equalToConstant: 30).isActive = true
+        fileIconImageView.heightAnchor.constraint(equalToConstant: 30).isActive = true
+    }
+
+    func setupTextView() {
+        stackView.leadingAnchor.constraint(equalTo: self.bubbleView.leadingAnchor, constant:8).isActive = true
+        stackView.topAnchor.constraint(equalTo: self.bubbleView.topAnchor).isActive = true
+        stackView.bottomAnchor.constraint(equalTo: self.bubbleView.bottomAnchor).isActive = true
+        stackView.trailingAnchor.constraint(equalTo: self.bubbleView.trailingAnchor, constant: -8).isActive = true
     }
     
-    func setupTimeLabel(){
+    func setupTimeLabel() {
         timeLabel.topAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: 8).isActive = true
         timeLabel.heightAnchor.constraint(equalToConstant: 21).isActive = true
         timeLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: 8).isActive = true
